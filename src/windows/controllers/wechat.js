@@ -70,7 +70,6 @@ class WeChatWindow {
 
     /* menu is always visible on xfce session */
     isXfce().then(data => {
-      console.log(data);
       if(data) {
         this.wechatWindow.setMenuBarVisibility(true);
         this.wechatWindow.setAutoHideMenuBar(false);
