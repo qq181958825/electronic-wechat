@@ -21,6 +21,7 @@ let NotifyManager = function () {
   this.queue = [];
   this.activeWindows = [];
   this.inactiveWindows = [];
+  this.windowsExtension = new WeakMap();
   this.notifyQueue = [];
 };
 
@@ -55,9 +56,10 @@ NotifyManager.prototype.getWindow = function () {
     /* check recyclable windows */
     if (_this.inactiveWindows.length > 0) {
       notificationWindow = _this.inactiveWindows.pop();
-      clearTimeout(notificationWindow.timeoutId);
-      delete notificationWindow.timeoutId;
-      delete notificationWindow.pendingClose;
+      let notifyWinExt = _this.windowsExtension.get(notificationWindow);
+      clearTimeout(notifyWinExt.timeoutId);
+      delete notifyWinExt.timeoutId;
+      delete notifyWinExt.pendingClose;
       resolve(notificationWindow);
       return;
     }
@@ -84,6 +86,7 @@ NotifyManager.prototype.getWindow = function () {
     notificationWindow.webContents.on('did-finish-load', function () {
       resolve(notificationWindow);
     });
+    _this.windowsExtension.set(notificationWindow, {});
   });
 };
 
@@ -99,7 +102,7 @@ NotifyManager.prototype.showNotification = function (notify) {
       let removeWindows = activeWindows.slice(0, activeWindows.length - Config.maxVisibleNotify + 1);
       removeWindows.forEach(function (window) {
         /* avoid double insertion of close window function */
-        if(!window.pendingClose) {
+        if(!_this.windowsExtension.get(window).pendingClose) {
           notifyManager.closeWindow(window);
         }
       });
@@ -113,14 +116,15 @@ NotifyManager.prototype.showNotification = function (notify) {
           notificationWindow.setPosition(position.x, position.y);
 
           _this.activeWindows.push(notificationWindow);
-          let timeoutId;
-
-          timeoutId = setTimeout(function () {
+          
+          let timeoutId = setTimeout(function () {
             notifyManager.closeWindow(notificationWindow);
           }, Config.notifyDuration);
-          notify.timeoutId = timeoutId;
 
-          notificationWindow.notify = notify;
+          let notifyWinExt = _this.windowsExtension.get(notificationWindow);
+          notifyWinExt.notify = notify;
+          notifyWinExt.notifyTimeoutId = timeoutId;
+
           notificationWindow.webContents.send('electron-Notify-set-contents', notify.serialize());
           notificationWindow.showInactive();
           notificationWindow.setAlwaysOnTop(true);
@@ -132,8 +136,9 @@ NotifyManager.prototype.showNotification = function (notify) {
 };
 
 NotifyManager.prototype.closeWindow = function (window) {
-  window.pendingClose = true;
-  clearTimeout(window.notify.timeoutId);
+  let notifyWinExt = this.windowsExtension.get(window);
+  notifyWinExt.pendingClose = true;
+  clearTimeout(notifyWinExt.notifyTimeoutId);
   this.enqueue({
     func: NotifyManager.prototype.closeNotification,
     args: [window]
@@ -141,7 +146,8 @@ NotifyManager.prototype.closeWindow = function (window) {
 };
 
 NotifyManager.prototype.closeNotification = function (notificationWindow) {
-  delete notificationWindow.notify;
+  let notifyWinExt = this.windowsExtension.get(notificationWindow);
+  delete notifyWinExt.notify;
   let activeWindows = this.activeWindows;
   let inactiveWindows = this.inactiveWindows;
   let index = activeWindows.indexOf(notificationWindow);
@@ -150,7 +156,7 @@ NotifyManager.prototype.closeNotification = function (notificationWindow) {
   notificationWindow.hide();
   /* cache inactive window, closed after Config.garbageDuration seconds */
   inactiveWindows.push(notificationWindow);
-  notificationWindow.timeoutId = setTimeout(function () {
+  notifyWinExt.timeoutId = setTimeout(function () {
     let index = inactiveWindows.indexOf(notificationWindow);
     inactiveWindows.splice(index, 1);
     notificationWindow.close();
@@ -272,15 +278,16 @@ Notify.init = function () {
 Notify.closeAll = function () {
   notifyManager.busy = false;
   notifyManager.queue = [];
+  let windowsExtension = notifyManager.windowsExtension;
 
   notifyManager.activeWindows.forEach(function (window) {
     /* clear all scheduled closeNotification */
-    clearTimeout(window.notify.timeoutId);
+    clearTimeout(windowsExtension.get(window).notifyTimeoutId);
     window.close();
   });
   notifyManager.inactiveWindows.forEach(function (window) {
     /* clear all scheduled garbage timer function */
-    clearTimeout(window.timeoutId);
+    clearTimeout(windowsExtension.get(window).timeoutId);
     window.close();
   });
   notifyManager.activeWindows = [];
