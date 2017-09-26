@@ -107,4 +107,12 @@ Common.MENU = {
   checkRelease: 'Check for New Release',
 };
 
+Common.globalShortcut = [
+  {
+    "Name":"ShowChat",
+    "Shortcut":"CommandOrControl+Alt+Z",
+    "func":"() => {this.wechatWindow.Toggle()}"
+  }
+];
+
 module.exports = Common;

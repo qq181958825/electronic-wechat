@@ -1,7 +1,7 @@
 'use strict';
 
 const path = require('path');
-const {app, ipcMain} = require('electron');
+const {app, ipcMain, globalShortcut} = require('electron');
 
 const UpdateHandler = require('./handlers/update');
 const Common = require('./common');
@@ -64,6 +64,12 @@ class ElectronicWeChat {
         AppConfig.saveSettings('prevent-recall', 'on');
         AppConfig.saveSettings('icon', 'black');
         AppConfig.saveSettings('multi-instance','on');
+      }
+
+      // register global shortcut
+      let ShortcutList = Common.globalShortcut;
+      for (var i =0; i< ShortcutList.length; i++) {
+        globalShortcut.register(ShortcutList[i]['Shortcut'], eval(ShortcutList[i]['func']));
       }
     });
 

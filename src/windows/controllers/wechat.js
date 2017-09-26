@@ -94,6 +94,14 @@ class WeChatWindow {
     this.isShown = false;
   }
 
+  Toggle() {
+    if (this.wechatWindow.isVisible()) {
+      this.hide();
+    } else {
+      this.show();
+    }
+  }
+
   connectWeChat() {
     Object.keys(this.inervals).forEach((key, index) => {
       clearInterval(key);

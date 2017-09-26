@@ -12,6 +12,13 @@ const NotificationInjector = require("../notify/notification_injector");
 
 const AppConfig = require('../configuration');
 
+// let Common;
+// if (lan === 'zh-CN') {
+//   Common = require('../../common_cn');
+// } else {
+//   Common = require('../../common');
+// }
+
 class Injector {
   init() {
     if (Common.DEBUG_MODE) {
