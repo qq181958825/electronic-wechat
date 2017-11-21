@@ -7,13 +7,14 @@ const async = require('async');
 let Gid = 0;
 
 let Config = {
-  width: 320, /* notification width */
-  height: 80, /* notification height */
-  margin: 10, /* margin to show the shadow */
-  position: 1, /* 0 top left 1, top right, 2 bottom right, 3 bottom left */
-  notifyDuration: 10000, /* notification duration (ms) */
-  garbageDuration: 10000, /* inactive window will be destroyed after some time. (ms) */
-  defaultMaxVisibleNotify: 5 /* maximum allowed notification */
+  width : 320,  /* notification width */
+  height : 80,  /* notification height */
+  margin : 10,  /* margin to show the shadow */
+  position : 1, /* 0 top left 1, top right, 2 bottom right, 3 bottom left */
+  notifyDuration : 10000, /* notification duration (ms) */
+  garbageDuration :
+      10000, /* inactive window will be destroyed after some time. (ms) */
+  defaultMaxVisibleNotify : 5 /* maximum allowed notification */
 };
 
 let NotifyManager = function () {
@@ -39,7 +40,7 @@ NotifyManager.prototype.dequeue = function (data) {
   data.func.apply(this, data.args)
     .then(function () {
       if (_this.queue.length > 0) {
-        
+
         _this.dequeue(_this.queue.shift());
       } else {
         _this.busy = false;
@@ -80,7 +81,7 @@ NotifyManager.prototype.getWindow = function () {
         allowDisplayingInsecureContent: true
       }
     });
-    
+
     notificationWindow.loadURL('file://' + path.join(__dirname, 'notification.html'));
     notificationWindow.setVisibleOnAllWorkspaces(true);
     notificationWindow.webContents.on('did-finish-load', function () {
@@ -116,7 +117,7 @@ NotifyManager.prototype.showNotification = function (notify) {
           notificationWindow.setPosition(position.x, position.y);
 
           _this.activeWindows.push(notificationWindow);
-          
+
           let timeoutId = setTimeout(function () {
             notifyManager.closeWindow(notificationWindow);
           }, Config.notifyDuration);
@@ -151,7 +152,7 @@ NotifyManager.prototype.closeNotification = function (notificationWindow) {
   let activeWindows = this.activeWindows;
   let inactiveWindows = this.inactiveWindows;
   let index = activeWindows.indexOf(notificationWindow);
-  
+
   activeWindows.splice(index, 1);
   notificationWindow.hide();
   /* cache inactive window, closed after Config.garbageDuration seconds */
@@ -161,7 +162,7 @@ NotifyManager.prototype.closeNotification = function (notificationWindow) {
     inactiveWindows.splice(index, 1);
     notificationWindow.close();
   }, Config.garbageDuration);
-  
+
   /* check if there exists some queued notification. */
   if (this.notifyQueue.length > 0 &&
     activeWindows.length < Config.maxVisibleNotify) {

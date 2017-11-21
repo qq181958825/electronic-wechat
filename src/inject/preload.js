@@ -145,8 +145,8 @@ class Injector {
   initIPC() {
     // clear currentUser to receive reddot of new messages from the current chat user
     ipcRenderer.on('hide-wechat-window', () => {
-      this.lastUser = angular.element('#chatArea').scope().currentUser;
-      angular.element('.chat_list').scope().itemClick(null);
+      // this.lastUser = angular.element('#chatArea').scope().currentUser;
+      // angular.element('.chat_list').scope().itemClick(null);
     });
     // recover to the last chat user
     ipcRenderer.on('show-wechat-window', (event, selectedUser) => {

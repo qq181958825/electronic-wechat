@@ -32,20 +32,20 @@
   },
   "homepage": "https://github.com/geeeeeeeeek/wechat-electron/",
   "dependencies": {
+    "async": "^2.6.0",
     "electron": "1.4.15",
+    "electron-localshortcut": "^2.0.2",
     "electron-packager": "^8.5.1",
-    "nconf": "^0.8.4",
-    "pinyin": "^2.8.0",
     "emojione": "^2.2.7",
-    "electron-localshortcut": "1.1.0",
     "is-xfce": "^1.0.2",
-    "async": "^2.5.0"
+    "nconf": "^0.8.5",
+    "pinyin": "^2.8.0"
   },
   "devDependencies": {
     "babel-eslint": "^7.1.1",
     "eslint": "^3.15.0",
     "eslint-config-airbnb": "^14.1.0",
-    "eslint-plugin-import": "^2.2.0",
+    "eslint-plugin-import": "^2.8.0",
     "eslint-plugin-jsx-a11y": "^4.0.0",
     "eslint-plugin-react": "^6.9.0"
   }
